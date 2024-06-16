@@ -1,0 +1,23 @@
+#!/bin/sh
+
+# Ensure we are at the root of the repository
+cd "$(git rev-parse --show-toplevel)"
+
+# Get the latest commit information
+COMMIT_HASH=$(git rev-parse --short HEAD)
+COMMIT_DATE=$(git show -s --format=%ci HEAD | cut -d ' ' -f 1)  # Format date as YYYY-MM-DD
+COMMIT_AUTHOR=$(git show -s --format=%an HEAD)
+
+# Define the placeholder and the replacement text
+PLACEHOLDER="@(#)"
+REPLACEMENT="@(#) $COMMIT_HASH $COMMIT_DATE $COMMIT_AUTHOR"
+
+# Find and replace the placeholder in all files, excluding the .git directory
+find . -type f ! -path './.git/*' -exec sed -i.bak "s|$PLACEHOLDER|$REPLACEMENT|g" {} \;
+
+# Clean up backup files
+find . -type f -name '*.bak' -exec rm {} \;
+
+# Add the modified files back to the staging area
+git add -u
+
